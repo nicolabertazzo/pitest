@@ -24,6 +24,8 @@ public final class MutationStatistics {
   private final long totalMutations;
   private final long numberOfTestsRun;
   private final long totalDetected;
+  private Integer partialyTestedDetected = 0;
+  private Integer pseudoTestedDetected = 0;
 
   public MutationStatistics(Iterable<Score> scores, long totalMutations,
       long totalDetected, long numberOfTestsRun) {
@@ -32,6 +34,17 @@ public final class MutationStatistics {
     this.totalDetected = totalDetected;
     this.numberOfTestsRun = numberOfTestsRun;
   }
+
+  public MutationStatistics(Iterable<Score> scores, long totalMutations,
+          long totalDetected, long numberOfTestsRun,
+          Integer partialyTestedDetected, Integer pseudoTestedDetected) {
+        this.scores = scores;
+        this.totalMutations = totalMutations;
+        this.totalDetected = totalDetected;
+        this.numberOfTestsRun = numberOfTestsRun;
+        this.partialyTestedDetected = partialyTestedDetected;
+        this.pseudoTestedDetected = pseudoTestedDetected;
+      }
 
   public Iterable<Score> getScores() {
     return this.scores;
@@ -70,7 +83,7 @@ public final class MutationStatistics {
         + getTestsPerMutation() + " tests per mutation)");
 
   }
-
+  
   private String getTestsPerMutation() {
     if (this.getTotalMutations() == 0) {
       return "0";
@@ -80,6 +93,14 @@ public final class MutationStatistics {
         / (float) this.getTotalMutations();
     return new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.ENGLISH))
         .format(testsPerMutation);
+  }
+
+  public Integer getPartiallyTestedDetected() {
+    return partialyTestedDetected;
+  }
+
+  public Integer getPseudoTestedDetected() {
+    return pseudoTestedDetected;
   }
 
 }

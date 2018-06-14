@@ -339,6 +339,18 @@ public class AbstractPitMojo extends AbstractMojo {
   @Parameter(property = "plugin.artifactMap", readonly = true, required = true)
   private Map<String, Artifact>       pluginArtifactMap;
 
+  /**
+   * Pseudo Tested threshold at which to fail build
+   */
+  @Parameter(defaultValue = "0", property = "pseudoTestedThreshold")
+  private int pseudoTestedThreshold;
+
+  /**
+   * Partially Tested threshold at which to fail build
+   */
+  @Parameter(defaultValue = "0", property = "partiallyTestedThreshold")
+  private int partiallyTestedThreshold;
+
   protected final GoalStrategy        goalStrategy;
 
   public AbstractPitMojo() {
@@ -379,14 +391,34 @@ public class AbstractPitMojo extends AbstractMojo {
         throwErrorIfScoreBelowThreshold(result.get().getMutationStatistics());
         throwErrorIfMoreThanMaximumSurvivors(result.get().getMutationStatistics());
         throwErrorIfCoverageBelowThreshold(result.get().getCoverageSummary());
+        //
+        throwErrorIfPseudoTestedBelowThreshold(result.get().getMutationStatistics());
+        throwErrorIfPartiallyTestedBelowThreshold(result.get().getMutationStatistics());
       }
-
     } else {
       this.getLog().info("Skipping project because:");
       for (String reason : shouldRun.getReasons()) {
         this.getLog().info("  - " + reason);
       }
     }
+  }
+
+  private void throwErrorIfPartiallyTestedBelowThreshold(MutationStatistics result) throws MojoFailureException {
+      if ((this.partiallyTestedThreshold != 0)
+              && (result.getPartiallyTestedDetected() < this.partiallyTestedThreshold)) {
+            throw new MojoFailureException("Mutation score of "
+                + result.getPartiallyTestedDetected() + " is below threshold of "
+                + this.partiallyTestedThreshold);
+   }
+  }
+
+  private void throwErrorIfPseudoTestedBelowThreshold(MutationStatistics result) throws MojoFailureException {
+    if ((this.partiallyTestedThreshold != 0)
+            && (result.getPseudoTestedDetected() < this.pseudoTestedThreshold)) {
+          throw new MojoFailureException("Mutation score of "
+              + result.getPseudoTestedDetected() + " is below threshold of "
+              + this.pseudoTestedThreshold);
+   }
   }
 
   private void switchLogging() {
